@@ -262,8 +262,26 @@ class SpiderSolitaire {
         this.renderGame();
     }
     
+    hasEmptyColumn() {
+        for (let i = 0; i < 10; i++) {
+            if (this.columns[i].length === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    showAlert(message) {
+        alert(message);
+    }
+    
     dealFromStock() {
         if (this.stock.length === 0) return;
+        
+        if (this.hasEmptyColumn()) {
+            this.showAlert('有空列时不能发牌，请先填满所有空列！');
+            return;
+        }
         
         for (let i = 0; i < 10; i++) {
             if (this.stock.length > 0) {
@@ -282,6 +300,24 @@ class SpiderSolitaire {
         }
         
         this.renderGame();
+        this.applyDealAnimation();
+    }
+    
+    applyDealAnimation() {
+        for (let i = 0; i < 10; i++) {
+            const columnElement = document.querySelector(`.column[data-column="${i}"]`);
+            if (columnElement) {
+                const cards = columnElement.querySelectorAll('.card');
+                if (cards.length > 0) {
+                    const lastCard = cards[cards.length - 1];
+                    lastCard.classList.add('dealing');
+                    
+                    setTimeout(() => {
+                        lastCard.classList.remove('dealing');
+                    }, 300);
+                }
+            }
+        }
     }
     
     saveState() {
