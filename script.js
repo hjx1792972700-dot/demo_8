@@ -218,9 +218,9 @@ class SpiderSolitaire {
     }
     
     moveCards(sourceColumn, startIndex, targetColumn) {
-        const cardsToMove = this.columns[sourceColumn].splice(startIndex);
-        
         this.saveState();
+        
+        const cardsToMove = this.columns[sourceColumn].splice(startIndex);
         
         cardsToMove.forEach(card => {
             this.columns[targetColumn].push(card);
@@ -239,6 +239,8 @@ class SpiderSolitaire {
         this.checkForCompleteSuit(targetColumn);
         
         this.renderGame();
+        
+        this.checkForWin();
     }
     
     checkForCompleteSuit(columnIndex) {
@@ -283,6 +285,8 @@ class SpiderSolitaire {
             return;
         }
         
+        this.saveState();
+        
         for (let i = 0; i < 10; i++) {
             if (this.stock.length > 0) {
                 const card = this.stock.pop();
@@ -291,7 +295,6 @@ class SpiderSolitaire {
             }
         }
         
-        this.saveState();
         this.moves++;
         this.updateMoves();
         
@@ -301,6 +304,8 @@ class SpiderSolitaire {
         
         this.renderGame();
         this.applyDealAnimation();
+        
+        this.checkForWin();
     }
     
     applyDealAnimation() {
@@ -318,6 +323,38 @@ class SpiderSolitaire {
                 }
             }
         }
+    }
+    
+    checkForWin() {
+        let allColumnsEmpty = true;
+        for (let i = 0; i < 10; i++) {
+            if (this.columns[i].length > 0) {
+                allColumnsEmpty = false;
+                break;
+            }
+        }
+        
+        if (allColumnsEmpty && this.stock.length === 0) {
+            this.stopTimer();
+            this.showWinDialog();
+        }
+    }
+    
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+    
+    showWinDialog() {
+        const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        
+        const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+        alert(`🎉 恭喜你赢了！\n\n用时：${timeStr}\n步数：${this.moves}`);
     }
     
     saveState() {
